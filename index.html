@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GR8 Aluno Melhorado</title>
+<style>
+    body.dark-mode { background: #121212; color: #e0e0e0; }
+    body.dark-mode table { background: #1e1e1e; color: #e0e0e0; }
+    body.dark-mode th, body.dark-mode td { border-color: #333; }
+    table.compact td:nth-child(n+5), table.compact th:nth-child(n+5) { display:none; }
+    .low-grade { color: red !important; font-weight: bold; }
+    #gr8-btn-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 5px; z-index: 9999; }
+    .gr8-btn { background: #007bff; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+    .gr8-btn:hover { background: #0056b3; }
+    @media print { body * { visibility: hidden; } table, table * { visibility: visible; } table { position: absolute; top: 0; left: 0; width: 100%; } }
+</style>
+</head>
+<body>
+<h1>GR8 Aluno Melhorado</h1>
+<p>Este portal aplica melhorias ao GR8 Aluno: modo escuro, compact view, destaque de notas baixas, médias automáticas, export CSV, impressão e atalhos de teclado.</p>
+<div id="gr8-btn-container"></div>
+<div id="table-container"></div>
+
+<script>
+(async function() {
+    const NOTA_LIMITE = 6;
+    const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutos
+
+    // ====================
+    // FUNÇÕES PRINCIPAIS
+    // ====================
+    function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+    function toggleCompactView() { document.querySelector('table')?.classList.toggle('compact'); }
+    function printTable() { window.print(); }
+
+    function highlightLowGrades() {
+        const table = document.querySelector('table');
+        if(!table) return;
+        table.querySelectorAll('td').forEach(td => {
+            const val = parseFloat(td.textContent.replace(',', '.'));
+            if(!isNaN(val) && val < NOTA_LIMITE) td.classList.add('low-grade');
+        });
+    }
+
+    function calculateAverage() {
+        const table = document.querySelector('table');
+        if(!table) return;
+        const rows = Array.from(table.querySelectorAll('tbody tr'));
+        rows.forEach(row => {
+            const tds = Array.from(row.querySelectorAll('td'));
+            const notas = tds.map(td => parseFloat(td.textContent.replace(',', '.'))).filter(n=>!isNaN(n));
+            if(notas.length > 0) {
+                const media = (notas.reduce((a,b)=>a+b,0)/notas.length).toFixed(2);
+                let avgCell = row.querySelector('.average-cell');
+                if(!avgCell) {
+                    avgCell = document.createElement('td'); avgCell.classList.add('average-cell'); row.appendChild(avgCell);
+                }
+                avgCell.textContent = media.replace('.', ',');
+            }
+        });
+    }
+
+    function exportCSV() {
+        const table = document.querySelector('table'); if(!table) return;
+        let csv = '';
+        table.querySelectorAll('tr').forEach(tr => {
+            const row = Array.from(tr.querySelectorAll('th, td')).map(td => `"${td.textContent.replace(/"/g,'""')}"`).join(',');
+            csv += row+'\n';
+        });
+        const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href=url; a.download='GR8_Aluno.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+
+    // ====================
+    // BOTÕES FLUTUANTES
+    // ====================
+    const btnContainer = document.getElementById('gr8-btn-container');
+    const buttons = [
+        {text:'Modo Escuro', func: toggleDarkMode},
+        {text:'Compact View', func: toggleCompactView},
+        {text:'Export CSV', func: exportCSV},
+        {text:'Imprimir', func: printTable}
+    ];
+    buttons.forEach(btn => {
+        const b = document.createElement('button'); b.className='gr8-btn'; b.textContent=btn.text; b.onclick=btn.func;
+        btnContainer.appendChild(b);
+    });
+
+    // ====================
+    // BUSCA E RENDERIZAÇÃO DE DADOS (EXEMPLO)
+    // ====================
+    const tableContainer = document.getElementById('table-container');
+    const table = document.createElement('table'); table.border=1; table.style.width='100%';
+    const thead = document.createElement('thead'); thead.innerHTML='<tr><th>Aluno</th><th>Nota 1</th><th>Nota 2</th><th>Nota 3</th></tr>';
+    const tbody = document.createElement('tbody');
+    
+    // Exemplo de dados estáticos (pode ser substituído por fetch real do GR8 Aluno)
+    const alunos = [
+        {nome:'João', notas:[5,7,6]},
+        {nome:'Maria', notas:[8,9,7]},
+        {nome:'Pedro', notas:[4,5,6]}
+    ];
+    alunos.forEach(a=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${a.nome}</td><td>${a.notas[0]}</td><td>${a.notas[1]}</td><td>${a.notas[2]}</td>`;
+        tbody.appendChild(tr);
+    });
+
+    table.appendChild(thead); table.appendChild(tbody); tableContainer.appendChild(table);
+
+    // ====================
+    // FUNÇÕES AUTOMÁTICAS
+    // ====================
+    highlightLowGrades();
+    calculateAverage();
+    setInterval(()=>{ highlightLowGrades(); calculateAverage(); }, REFRESH_INTERVAL);
+
+    // ====================
+    // ATALHOS DE TECLADO
+    // ====================
+    document.addEventListener('keydown', e=>{
+        if(e.altKey && e.key==='d') toggleDarkMode();
+        if(e.altKey && e.key==='c') toggleCompactView();
+        if(e.altKey && e.key==='e') exportCSV();
+        if(e.altKey && e.key==='p') printTable();
+    });
+
+})();
+</script>
+</body>
+</html>
