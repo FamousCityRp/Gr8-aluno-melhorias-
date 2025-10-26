@@ -3,130 +3,222 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GR8 Aluno Melhorado</title>
+<title>🎃 Semana dos Doces dos ADMs 🍬</title>
 <style>
-    body.dark-mode { background: #121212; color: #e0e0e0; }
-    body.dark-mode table { background: #1e1e1e; color: #e0e0e0; }
-    body.dark-mode th, body.dark-mode td { border-color: #333; }
-    table.compact td:nth-child(n+5), table.compact th:nth-child(n+5) { display:none; }
-    .low-grade { color: red !important; font-weight: bold; }
-    #gr8-btn-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 5px; z-index: 9999; }
-    .gr8-btn { background: #007bff; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-    .gr8-btn:hover { background: #0056b3; }
-    @media print { body * { visibility: hidden; } table, table * { visibility: visible; } table { position: absolute; top: 0; left: 0; width: 100%; } }
+  body {
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(180deg, #1a001f, #2d0045);
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 2.3em;
+    color: #ff9d00;
+    text-shadow: 0 0 15px #ff6a00;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    margin-top: 40px;
+    color: #ffcc80;
+    text-shadow: 0 0 10px #ff8800;
+  }
+
+  table {
+    margin: 20px auto;
+    border-collapse: collapse;
+    width: 95%;
+    max-width: 700px;
+    background: rgba(30, 0, 40, 0.7);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 20px #ff6a00;
+  }
+
+  th, td {
+    border: 1px solid #ff8800;
+    padding: 12px;
+  }
+
+  th {
+    background: #3b005a;
+    color: #ffcc80;
+    font-size: 1.1em;
+  }
+
+  tr:nth-child(even) {
+    background: rgba(60, 0, 80, 0.5);
+  }
+
+  tr:nth-child(odd) {
+    background: rgba(80, 0, 100, 0.5);
+  }
+
+  input {
+    width: 80%;
+    padding: 5px;
+    border: none;
+    border-radius: 6px;
+    text-align: center;
+    background: #25002f;
+    color: #fff;
+  }
+
+  button {
+    background: #ff6a00;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 4px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  button:hover {
+    background: #ffa600;
+    box-shadow: 0 0 10px #ffcc80;
+  }
+
+  .adm-card {
+    margin: 10px auto;
+    padding: 10px;
+    max-width: 600px;
+    text-align: left;
+  }
+
+  .progress-container {
+    width: 100%;
+    background: rgba(50,0,70,0.5);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 8px 0;
+    height: 25px;
+  }
+
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff6a00, #ffcc80);
+    text-align: right;
+    padding-right: 8px;
+    line-height: 25px;
+    color: #1a001f;
+    font-weight: bold;
+    transition: width 0.5s ease;
+  }
+
+  footer {
+    margin-top: 50px;
+    color: #ffcc80;
+    font-size: 0.9em;
+  }
 </style>
 </head>
 <body>
-<h1>GR8 Aluno Melhorado</h1>
-<p>Este portal aplica melhorias ao GR8 Aluno: modo escuro, compact view, destaque de notas baixas, médias automáticas, export CSV, impressão e atalhos de teclado.</p>
-<div id="gr8-btn-container"></div>
-<div id="table-container"></div>
+  <h1>🎃 Semana dos Doces dos ADMs 🍬</h1>
+  <p>Ajude, indique, participe e acumule doces!<br>Os 3 ADMs com mais doces ganham <strong>100 ROBUX</strong> 🏆</p>
+
+  <h2>🍭 Modo Manual</h2>
+  <table id="manualTable">
+    <thead>
+      <tr>
+        <th>Posição 🏅</th>
+        <th>Nome do ADM</th>
+        <th>Doces 🍬</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1º</td>
+        <td><input type="text" value="ADM 1"></td>
+        <td><input type="number" value="0" min="0"></td>
+      </tr>
+      <tr>
+        <td>2º</td>
+        <td><input type="text" value="ADM 2"></td>
+        <td><input type="number" value="0" min="0"></td>
+      </tr>
+      <tr>
+        <td>3º</td>
+        <td><input type="text" value="ADM 3"></td>
+        <td><input type="number" value="0" min="0"></td>
+      </tr>
+    </tbody>
+  </table>
+  <button onclick="updateManualRanking()">🔄 Atualizar Ranking Manual</button>
+
+  <h2>🍫 Modo com Botões (Automático)</h2>
+  <div id="admList"></div>
+
+  <footer>👻 Tema Halloween — Sistema de Doces dos ADMs 🍬</footer>
 
 <script>
-(async function() {
-    const NOTA_LIMITE = 6;
-    const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutos
+  // --- MODO AUTOMÁTICO ---
+  const adms = [
+    { nome: "ADM 1", doces: 0 },
+    { nome: "ADM 2", doces: 0 },
+    { nome: "ADM 3", doces: 0 },
+    { nome: "ADM 4", doces: 0 }
+  ];
 
-    // ====================
-    // FUNÇÕES PRINCIPAIS
-    // ====================
-    function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
-    function toggleCompactView() { document.querySelector('table')?.classList.toggle('compact'); }
-    function printTable() { window.print(); }
+  const admList = document.getElementById("admList");
 
-    function highlightLowGrades() {
-        const table = document.querySelector('table');
-        if(!table) return;
-        table.querySelectorAll('td').forEach(td => {
-            const val = parseFloat(td.textContent.replace(',', '.'));
-            if(!isNaN(val) && val < NOTA_LIMITE) td.classList.add('low-grade');
-        });
-    }
-
-    function calculateAverage() {
-        const table = document.querySelector('table');
-        if(!table) return;
-        const rows = Array.from(table.querySelectorAll('tbody tr'));
-        rows.forEach(row => {
-            const tds = Array.from(row.querySelectorAll('td'));
-            const notas = tds.map(td => parseFloat(td.textContent.replace(',', '.'))).filter(n=>!isNaN(n));
-            if(notas.length > 0) {
-                const media = (notas.reduce((a,b)=>a+b,0)/notas.length).toFixed(2);
-                let avgCell = row.querySelector('.average-cell');
-                if(!avgCell) {
-                    avgCell = document.createElement('td'); avgCell.classList.add('average-cell'); row.appendChild(avgCell);
-                }
-                avgCell.textContent = media.replace('.', ',');
-            }
-        });
-    }
-
-    function exportCSV() {
-        const table = document.querySelector('table'); if(!table) return;
-        let csv = '';
-        table.querySelectorAll('tr').forEach(tr => {
-            const row = Array.from(tr.querySelectorAll('th, td')).map(td => `"${td.textContent.replace(/"/g,'""')}"`).join(',');
-            csv += row+'\n';
-        });
-        const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href=url; a.download='GR8_Aluno.csv'; a.click(); URL.revokeObjectURL(url);
-    }
-
-    // ====================
-    // BOTÕES FLUTUANTES
-    // ====================
-    const btnContainer = document.getElementById('gr8-btn-container');
-    const buttons = [
-        {text:'Modo Escuro', func: toggleDarkMode},
-        {text:'Compact View', func: toggleCompactView},
-        {text:'Export CSV', func: exportCSV},
-        {text:'Imprimir', func: printTable}
-    ];
-    buttons.forEach(btn => {
-        const b = document.createElement('button'); b.className='gr8-btn'; b.textContent=btn.text; b.onclick=btn.func;
-        btnContainer.appendChild(b);
+  function renderAdmCards() {
+    admList.innerHTML = "";
+    const maxDoces = Math.max(...adms.map(a => a.doces), 1); // evita divisão por 0
+    adms.sort((a, b) => b.doces - a.doces);
+    adms.forEach((adm, i) => {
+      const card = document.createElement("div");
+      card.className = "adm-card";
+      card.innerHTML = `
+        <table style="width:100%; margin-bottom:5px;">
+          <tr>
+            <th>🏅 ${i + 1}º</th>
+            <th>${adm.nome}</th>
+            <th>🍬 ${adm.doces}</th>
+          </tr>
+        </table>
+        <div class="progress-container">
+          <div class="progress-bar" style="width:${(adm.doces / maxDoces) * 100}%;">${adm.doces}</div>
+        </div>
+        <button onclick="addDoces('${adm.nome}', 3)">🤝 Ajudou membro (+3)</button>
+        <button onclick="addDoces('${adm.nome}', 2)">🌍 Entrou servidor (+2)</button>
+        <button onclick="addDoces('${adm.nome}', 5)">🧙‍♂️ Indicou ADM (+5)</button>
+        <button onclick="addDoces('${adm.nome}', 4)">🎉 Criou evento (+4)</button>
+        <button onclick="addDoces('${adm.nome}', 2)">✅ Cumpriu meta (+2)</button>
+        <hr style="width:80%;border-color:#ff9d00;">
+      `;
+      admList.appendChild(card);
     });
+  }
 
-    // ====================
-    // BUSCA E RENDERIZAÇÃO DE DADOS (EXEMPLO)
-    // ====================
-    const tableContainer = document.getElementById('table-container');
-    const table = document.createElement('table'); table.border=1; table.style.width='100%';
-    const thead = document.createElement('thead'); thead.innerHTML='<tr><th>Aluno</th><th>Nota 1</th><th>Nota 2</th><th>Nota 3</th></tr>';
-    const tbody = document.createElement('tbody');
-    
-    // Exemplo de dados estáticos (pode ser substituído por fetch real do GR8 Aluno)
-    const alunos = [
-        {nome:'João', notas:[5,7,6]},
-        {nome:'Maria', notas:[8,9,7]},
-        {nome:'Pedro', notas:[4,5,6]}
-    ];
-    alunos.forEach(a=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${a.nome}</td><td>${a.notas[0]}</td><td>${a.notas[1]}</td><td>${a.notas[2]}</td>`;
-        tbody.appendChild(tr);
+  function addDoces(nome, valor) {
+    const adm = adms.find(a => a.nome === nome);
+    if (adm) adm.doces += valor;
+    renderAdmCards();
+  }
+
+  renderAdmCards();
+
+  // --- MODO MANUAL ---
+  function updateManualRanking() {
+    const table = document.getElementById("manualTable");
+    const rows = Array.from(table.querySelectorAll("tbody tr"));
+    const data = rows.map(row => ({
+      nome: row.cells[1].querySelector("input").value,
+      doces: parseInt(row.cells[2].querySelector("input").value) || 0
+    }));
+    data.sort((a, b) => b.doces - a.doces);
+    rows.forEach((row, i) => {
+      row.cells[0].textContent = `${i + 1}º`;
+      row.cells[1].querySelector("input").value = data[i].nome;
+      row.cells[2].querySelector("input").value = data[i].doces;
     });
-
-    table.appendChild(thead); table.appendChild(tbody); tableContainer.appendChild(table);
-
-    // ====================
-    // FUNÇÕES AUTOMÁTICAS
-    // ====================
-    highlightLowGrades();
-    calculateAverage();
-    setInterval(()=>{ highlightLowGrades(); calculateAverage(); }, REFRESH_INTERVAL);
-
-    // ====================
-    // ATALHOS DE TECLADO
-    // ====================
-    document.addEventListener('keydown', e=>{
-        if(e.altKey && e.key==='d') toggleDarkMode();
-        if(e.altKey && e.key==='c') toggleCompactView();
-        if(e.altKey && e.key==='e') exportCSV();
-        if(e.altKey && e.key==='p') printTable();
-    });
-
-})();
+  }
 </script>
 </body>
 </html>
